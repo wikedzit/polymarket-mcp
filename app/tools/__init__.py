@@ -1,9 +1,11 @@
 from fastmcp import FastMCP
 
-from app.tools import api_health, markets, orderbook
+from app.tools.clob import register as register_clob
+from app.tools.gamma import register as register_gamma
+from app.tools.health import register as register_health
 
 
 def register_tools(mcp: FastMCP) -> None:
-    api_health.register(mcp)
-    markets.register(mcp)
-    orderbook.register(mcp)
+    register_health(mcp)
+    register_gamma(mcp)
+    register_clob(mcp)
