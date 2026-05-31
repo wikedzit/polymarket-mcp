@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "polymarket": {
+      "command": "/Users/wikedzi/projects/Traders/Polymarket/mcp/.venv/bin/fastmcp",
+      "args": [
+        "run",
+        "app/main.py:mcp"
+      ],
+      "cwd": "/Users/wikedzi/projects/Traders/Polymarket/mcp"
+    }
+  }
+}
