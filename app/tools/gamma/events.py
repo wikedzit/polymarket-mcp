@@ -70,16 +70,16 @@ def register(mcp: FastMCP) -> None:
             )
 
     @mcp.tool
-    async def get_gamma_event(event_id: str) -> dict[str, Any]:
+    async def get_gamma_event(event_id: str, summarize: bool = False) -> dict[str, Any]:
         """Fetch a Polymarket event by ID via the trading API."""
         async with ApiClient() as client:
-            return await client.gamma_get(f"/events/{event_id}")
+            return await client.gamma_get(f"/events/{event_id}", {"summarize": summarize})
 
     @mcp.tool
-    async def get_gamma_event_by_slug(slug: str) -> dict[str, Any]:
+    async def get_gamma_event_by_slug(slug: str, summarize: bool = False) -> dict[str, Any]:
         """Fetch a Polymarket event by slug via the trading API."""
         async with ApiClient() as client:
-            return await client.gamma_get(f"/events/slug/{slug}")
+            return await client.gamma_get(f"/events/slug/{slug}", {"summarize": summarize})
 
     @mcp.tool
     async def get_gamma_event_live_volume(event_id: str) -> dict[str, Any]:

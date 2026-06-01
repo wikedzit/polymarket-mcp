@@ -14,7 +14,7 @@ def register(mcp: FastMCP) -> None:
         start_ts: int | None = None,
         end_ts: int | None = None,
     ) -> dict[str, Any]:
-        """Fetch historical prices for a token via the trading API."""
+        """Fetch historical prices from Gamma via the trading API."""
         params: dict[str, Any] = {"market": market}
         if fidelity is not None:
             params["fidelity"] = fidelity
@@ -28,32 +28,7 @@ def register(mcp: FastMCP) -> None:
             return await client.gamma_get("/prices-history", params)
 
     @mcp.tool
-    async def get_gamma_prices_history_batch(
-        body: dict[str, Any],
-    ) -> dict[str, Any]:
-        """Fetch batch historical prices via the trading API."""
+    async def get_gamma_prices_history_batch(body: dict[str, Any]) -> dict[str, Any]:
+        """Fetch batch Gamma price history via the trading API."""
         async with ApiClient() as client:
             return await client.gamma_post("/prices-history/batch", body)
-
-    @mcp.tool
-    async def get_gamma_open_interest(market: str | None = None) -> dict[str, Any]:
-        """Fetch open interest via the trading API."""
-        params = {"market": market} if market else None
-        async with ApiClient() as client:
-            return await client.gamma_get("/open-interest", params)
-
-    @mcp.tool
-    async def list_gamma_trades(
-        market: str | None = None,
-        user: str | None = None,
-        limit: int = 10,
-        offset: int = 0,
-    ) -> list[dict[str, Any]]:
-        """List Polymarket trades via the trading API."""
-        params: dict[str, Any] = {"limit": limit, "offset": offset}
-        if market:
-            params["market"] = market
-        if user:
-            params["user"] = user
-        async with ApiClient() as client:
-            return await client.gamma_get("/trades", params)

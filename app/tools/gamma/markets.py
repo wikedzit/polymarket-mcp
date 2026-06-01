@@ -132,22 +132,25 @@ def register(mcp: FastMCP) -> None:
             )
 
     @mcp.tool
-    async def get_gamma_market_by_slug(slug: str) -> dict[str, Any]:
+    async def get_gamma_market_by_slug(slug: str, summarize: bool = False) -> dict[str, Any]:
         """Fetch a Polymarket market by URL slug via the trading API."""
         async with ApiClient() as client:
-            return await client.gamma_get(f"/markets/slug/{slug}")
+            return await client.gamma_get(f"/markets/slug/{slug}", {"summarize": summarize})
 
     @mcp.tool
-    async def get_gamma_market(market_id: str) -> dict[str, Any]:
+    async def get_gamma_market(market_id: str, summarize: bool = False) -> dict[str, Any]:
         """Fetch a Polymarket market by Gamma market ID via the trading API."""
         async with ApiClient() as client:
-            return await client.gamma_get(f"/markets/{market_id}")
+            return await client.gamma_get(f"/markets/{market_id}", {"summarize": summarize})
 
     @mcp.tool
-    async def get_gamma_market_by_token(token_id: str) -> dict[str, Any]:
+    async def get_gamma_market_by_token(token_id: str, summarize: bool = False) -> dict[str, Any]:
         """Resolve a parent market from an outcome token ID via the trading API."""
         async with ApiClient() as client:
-            return await client.gamma_get(f"/markets/by-token/{token_id}")
+            return await client.gamma_get(
+                f"/markets/by-token/{token_id}",
+                {"summarize": summarize},
+            )
 
     @mcp.tool
     async def get_gamma_market_tags(market_id: str) -> list[dict[str, Any]]:
