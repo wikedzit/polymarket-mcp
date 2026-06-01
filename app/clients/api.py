@@ -53,6 +53,12 @@ class ApiClient:
     async def data_get(self, path: str, params: dict[str, Any] | None = None) -> Any:
         return await self._get_json(f"/data{path}", params=params)
 
+    async def bridge_get(self, path: str, params: dict[str, Any] | None = None) -> Any:
+        return await self._get_json(f"/bridge{path}", params=params)
+
+    async def bridge_post(self, path: str, json: Any = None) -> Any:
+        return await self._post_json(f"/bridge{path}", json=json)
+
     async def clob_get(self, path: str, params: dict[str, Any] | None = None) -> Any:
         return await self._get_json(f"/clob{path}", params=params)
 
