@@ -1,0 +1,16 @@
+services:
+  mcp:
+    build: .
+    container_name: polymarket-mcp
+    env_file:
+      - .env
+    environment:
+      MCP_HOST: 0.0.0.0
+      # Docker-specific API URL (overrides .env — container cannot use 127.0.0.1 for host API)
+      POLYMARKET_API_URL: ${DOCKER_POLYMARKET_API_URL:-http://host.docker.internal:8000}
+      MCP_URL: ${MCP_URL:-http://127.0.0.1:${MCP_PORT:-8001}}
+    ports:
+      - "${MCP_PORT:-8001}:${MCP_PORT:-8001}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

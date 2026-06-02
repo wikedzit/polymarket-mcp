@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 import httpx
 
+from app.clients.errors import ApiClientError
 from app.config import settings
 
 
@@ -20,23 +21,56 @@ class ApiClient:
     async def close(self) -> None:
         await self._client.aclose()
 
+    def _raise_for_response(self, response: httpx.Response, path: str) -> None:
+        if response.is_success:
+            return
+
+        detail: Any
+        try:
+            detail = response.json()
+        except json.JSONDecodeError:
+            detail = response.text or None
+
+        message = f"Trading API returned HTTP {response.status_code} for {path}"
+        if isinstance(detail, dict):
+            nested = detail.get("detail")
+            if isinstance(nested, dict):
+                msg = nested.get("error") or nested.get("message")
+                if isinstance(msg, str):
+                    message = msg
+            elif isinstance(nested, str):
+                message = nested
+            else:
+                msg = detail.get("message")
+                if isinstance(msg, str):
+                    message = msg
+
+        code = "not_found" if response.status_code == 404 else "http_error"
+        raise ApiClientError(
+            message,
+            code=code,
+            status_code=response.status_code,
+            path=path,
+            detail=detail,
+        )
+
     async def _get_json(self, path: str, **kwargs: Any) -> Any:
         response = await self._client.get(path, **kwargs)
-        response.raise_for_status()
+        self._raise_for_response(response, path)
         if not response.content:
             return None
         return response.json()
 
     async def _post_json(self, path: str, **kwargs: Any) -> Any:
         response = await self._client.post(path, **kwargs)
-        response.raise_for_status()
+        self._raise_for_response(response, path)
         if not response.content:
             return None
         return response.json()
 
     async def _delete_json(self, path: str, **kwargs: Any) -> Any:
         response = await self._client.delete(path, **kwargs)
-        response.raise_for_status()
+        self._raise_for_response(response, path)
         if not response.content:
             return None
         return response.json()

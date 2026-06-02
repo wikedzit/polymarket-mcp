@@ -1,18 +1,21 @@
 from typing import Any
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def post_clob_order(body: dict[str, Any]) -> Any:
         """Post a pre-signed CLOB order payload (advanced). Prefer post_clob_market_order."""
         async with ApiClient() as client:
             return await client.clob_post("/order", body)
 
-    @mcp.tool
+    @tool
     async def post_clob_market_order(
         token_id: str,
         amount: float,
@@ -33,7 +36,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.clob_post("/order/market", body)
 
-    @mcp.tool
+    @tool
     async def post_clob_limit_order(
         token_id: str,
         price: float,
@@ -58,7 +61,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.clob_post("/order/limit", body)
 
-    @mcp.tool
+    @tool
     async def get_clob_open_orders(
         market: str | None = None,
         asset_id: str | None = None,
@@ -72,31 +75,31 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.clob_get("/data/orders", params or None)
 
-    @mcp.tool
+    @tool
     async def get_clob_order(order_id: str) -> Any:
         """Get a CLOB order by ID via the trading API."""
         async with ApiClient() as client:
             return await client.clob_get(f"/data/order/{order_id}")
 
-    @mcp.tool
+    @tool
     async def cancel_clob_order(order_id: str) -> Any:
         """Cancel a CLOB order via the trading API."""
         async with ApiClient() as client:
             return await client.clob_delete(f"/order/{order_id}")
 
-    @mcp.tool
+    @tool
     async def cancel_all_clob_orders() -> Any:
         """Cancel all CLOB orders via the trading API."""
         async with ApiClient() as client:
             return await client.clob_delete("/cancel-all")
 
-    @mcp.tool
+    @tool
     async def post_clob_heartbeat(heartbeat_id: str = "") -> Any:
         """Send CLOB heartbeat via the trading API (keeps resting orders alive)."""
         async with ApiClient() as client:
             return await client.clob_post("/v1/heartbeats", {"heartbeat_id": heartbeat_id})
 
-    @mcp.tool
+    @tool
     async def get_clob_trades(
         market: str | None = None,
         asset_id: str | None = None,
@@ -110,7 +113,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.clob_get("/data/trades", params or None)
 
-    @mcp.tool
+    @tool
     async def get_clob_balance_allowance(
         asset_type: str = "COLLATERAL",
         token_id: str | None = None,
@@ -122,7 +125,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.clob_get("/balance-allowance", params)
 
-    @mcp.tool
+    @tool
     async def derive_clob_api_key(nonce: int | None = None) -> Any:
         """Derive CLOB L2 API credentials via the trading API (requires PRIVATE_KEY)."""
         params = {"nonce": nonce} if nonce is not None else None

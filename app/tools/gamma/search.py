@@ -1,12 +1,15 @@
 from typing import Any, Literal
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def gamma_search(
         q: str,
         search_type: Literal["markets", "events", "profiles"] | None = None,

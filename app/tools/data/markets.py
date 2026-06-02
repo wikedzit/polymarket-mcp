@@ -1,25 +1,28 @@
 from typing import Any
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def get_data_open_interest(market: str | None = None) -> dict[str, Any]:
         """Get open interest via the trading API Data service."""
         params = {"market": market} if market else None
         async with ApiClient() as client:
             return await client.data_get("/oi", params)
 
-    @mcp.tool
+    @tool
     async def get_data_live_volume(event_id: int) -> dict[str, Any]:
         """Get live event volume via the trading API Data service."""
         async with ApiClient() as client:
             return await client.data_get("/live-volume", {"id": event_id})
 
-    @mcp.tool
+    @tool
     async def get_data_market_positions(
         market: str,
         limit: int = 100,

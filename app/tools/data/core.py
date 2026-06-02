@@ -1,18 +1,21 @@
 from typing import Any
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def data_health() -> dict[str, Any]:
         """Check Polymarket Data API health via the trading API."""
         async with ApiClient() as client:
             return await client.data_get("/")
 
-    @mcp.tool
+    @tool
     async def get_data_positions(
         user: str,
         limit: int = 100,
@@ -25,7 +28,7 @@ def register(mcp: FastMCP) -> None:
                 {"user": user, "limit": limit, "offset": offset},
             )
 
-    @mcp.tool
+    @tool
     async def get_data_closed_positions(
         user: str,
         limit: int = 100,
@@ -38,13 +41,13 @@ def register(mcp: FastMCP) -> None:
                 {"user": user, "limit": limit, "offset": offset},
             )
 
-    @mcp.tool
+    @tool
     async def get_data_value(user: str) -> list[dict[str, Any]]:
         """Get total USDC value of a wallet's positions via the trading API."""
         async with ApiClient() as client:
             return await client.data_get("/value", {"user": user})
 
-    @mcp.tool
+    @tool
     async def get_data_trades(
         market: str | None = None,
         user: str | None = None,
@@ -60,7 +63,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.data_get("/trades", params)
 
-    @mcp.tool
+    @tool
     async def get_data_activity(
         user: str,
         limit: int = 100,
@@ -73,7 +76,7 @@ def register(mcp: FastMCP) -> None:
                 {"user": user, "limit": limit, "offset": offset},
             )
 
-    @mcp.tool
+    @tool
     async def get_data_holders(
         market: str,
         limit: int = 100,
@@ -82,7 +85,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.data_get("/holders", {"market": market, "limit": limit})
 
-    @mcp.tool
+    @tool
     async def get_data_traded(user: str) -> dict[str, Any]:
         """Get count of markets traded by a wallet via the trading API."""
         async with ApiClient() as client:

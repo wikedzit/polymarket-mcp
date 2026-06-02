@@ -1,5 +1,6 @@
 from fastmcp import FastMCP
 
+from app.tools.ask import register as register_ask
 from app.tools.bridge import register as register_bridge
 from app.tools.clob import register as register_clob
 from app.tools.data import register as register_data
@@ -13,3 +14,4 @@ def register_tools(mcp: FastMCP) -> None:
     register_clob(mcp)
     register_data(mcp)
     register_bridge(mcp)
+    register_ask(mcp)

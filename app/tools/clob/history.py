@@ -1,12 +1,15 @@
 from typing import Any
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def get_clob_prices_history(
         market: str,
         interval: str | None = None,
@@ -27,7 +30,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.clob_get("/prices-history", params)
 
-    @mcp.tool
+    @tool
     async def get_clob_batch_prices_history(body: dict[str, Any]) -> Any:
         """Get batch CLOB price history via the trading API."""
         async with ApiClient() as client:

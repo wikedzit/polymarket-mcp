@@ -1,12 +1,15 @@
 from typing import Any, Literal
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def get_data_leaderboard(
         category: Literal[
             "OVERALL",
@@ -30,7 +33,7 @@ def register(mcp: FastMCP) -> None:
                 {"category": category, "limit": limit, "offset": offset},
             )
 
-    @mcp.tool
+    @tool
     async def get_data_builder_leaderboard(
         limit: int = 25,
         offset: int = 0,
@@ -42,7 +45,7 @@ def register(mcp: FastMCP) -> None:
                 {"limit": limit, "offset": offset},
             )
 
-    @mcp.tool
+    @tool
     async def get_data_builder_volume(
         builder: str | None = None,
         start_date: str | None = None,

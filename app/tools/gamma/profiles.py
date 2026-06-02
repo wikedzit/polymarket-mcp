@@ -1,18 +1,21 @@
 from typing import Any
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def get_gamma_profile(address: str) -> dict[str, Any]:
         """Fetch a Polymarket user profile via the trading API."""
         async with ApiClient() as client:
             return await client.gamma_get(f"/profiles/{address}")
 
-    @mcp.tool
+    @tool
     async def list_gamma_comments(
         limit: int = 10,
         offset: int = 0,
@@ -21,7 +24,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.gamma_get("/comments", {"limit": limit, "offset": offset})
 
-    @mcp.tool
+    @tool
     async def list_gamma_comments_by_user(
         address: str,
         limit: int = 10,
@@ -34,7 +37,7 @@ def register(mcp: FastMCP) -> None:
                 {"limit": limit, "offset": offset},
             )
 
-    @mcp.tool
+    @tool
     async def get_gamma_comment(comment_id: str) -> dict[str, Any]:
         """Fetch a Polymarket comment by ID via the trading API."""
         async with ApiClient() as client:

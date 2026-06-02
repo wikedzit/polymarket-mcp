@@ -1,18 +1,21 @@
 from typing import Any
 
 from fastmcp import FastMCP
+from app.tools.helpers import make_tool
 
 from app.clients.api import ApiClient
 
 
 def register(mcp: FastMCP) -> None:
-    @mcp.tool
+    tool = make_tool(mcp)
+
+    @tool
     async def get_bridge_supported_assets() -> dict[str, Any]:
         """Get supported bridge chains and tokens via the trading API."""
         async with ApiClient() as client:
             return await client.bridge_get("/supported-assets")
 
-    @mcp.tool
+    @tool
     async def post_bridge_quote(
         from_amount_base_unit: str,
         from_chain_id: str,
@@ -33,13 +36,13 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.bridge_post("/quote", body)
 
-    @mcp.tool
+    @tool
     async def post_bridge_deposit(address: str) -> dict[str, Any]:
         """Create multi-chain deposit addresses for a Polymarket wallet via the trading API."""
         async with ApiClient() as client:
             return await client.bridge_post("/deposit", {"address": address})
 
-    @mcp.tool
+    @tool
     async def post_bridge_withdraw(
         address: str,
         to_chain_id: str,
@@ -56,7 +59,7 @@ def register(mcp: FastMCP) -> None:
         async with ApiClient() as client:
             return await client.bridge_post("/withdraw", body)
 
-    @mcp.tool
+    @tool
     async def get_bridge_status(address: str) -> dict[str, Any]:
         """Track bridge deposit or withdrawal progress via the trading API."""
         async with ApiClient() as client:
