@@ -27,11 +27,28 @@ Rules:
 - For balance queries use get_clob_balance_allowance with {"asset_type": "COLLATERAL"}.
 - For BTC Up or Down 5m closed events use list_gamma_events with series_id "10684".
 - String ID fields (series_id, token_id, event_id, etc.) must be JSON strings, not numbers.
+
+Paper / simulated / demo / virtual trading:
+- Keywords paper, demo, simulated, virtual, practice, fake money → paper trading mode.
+- For paper orders use post_clob_market_order or post_clob_limit_order with
+  {"mode": "paper", "paper_account_id": "<uuid>", ...}. Default mode is "real".
+- Paper balance/portfolio: get_paper_balance, get_paper_portfolio, get_paper_positions
+  (NOT get_clob_balance_allowance).
+- Create paper accounts with create_paper_account. List with list_paper_accounts.
+- Reset all paper state (balance + positions + orders): reset_paper_account.
+- Reset only virtual USDC cash (keeps positions): reset_paper_balance.
+- Paper accounts are scoped to the caller API access token; always pass paper_account_id.
+- List paper orders: get_clob_open_orders with {"mode": "paper", "paper_account_id": "<uuid>"}.
+- If user wants paper trading but no account_id, clarify or suggest create_paper_account /
+  list_paper_accounts first.
+
 - Trading/order intent (buy, sell, place order) is in scope even when details are missing:
   use status=clarify with the best matching order tool and partial arguments; explain what
-  is still needed (token_id, price, size/amount). Do NOT use not_found for trading intent.
+  is still needed (token_id, price, size/amount, and paper_account_id when mode=paper).
+  Do NOT use not_found for trading intent.
+- When the user clearly wants paper/demo trading, include "mode": "paper" in order tool args.
 - Trading/order tools should never use status=execute unless the user supplied all required
-  fields explicitly."""
+  fields explicitly (for paper orders: mode, paper_account_id, token_id, and amount or price/size)."""
 
 
 class AskRouterLLM:

@@ -3,13 +3,20 @@ from typing import Any, Literal
 
 import httpx
 
+from app.clients.credentials import TradingCredentialOverrides, credential_headers
 from app.clients.errors import ApiClientError
 from app.config import settings
 
 
 class ApiClient:
-    def __init__(self, base_url: str | None = None) -> None:
+    def __init__(
+        self,
+        base_url: str | None = None,
+        *,
+        credentials: TradingCredentialOverrides | None = None,
+    ) -> None:
         self._base_url = (base_url or settings.polymarket_api_url).rstrip("/")
+        self._credentials = credentials
         self._client = httpx.AsyncClient(base_url=self._base_url, timeout=60.0)
 
     async def __aenter__(self) -> "ApiClient":
@@ -20,6 +27,14 @@ class ApiClient:
 
     async def close(self) -> None:
         await self._client.aclose()
+
+    def _request_headers(self, extra: dict[str, str] | None = None) -> dict[str, str]:
+        headers = credential_headers(self._credentials)
+        if settings.polymarket_api_access_token:
+            headers["Authorization"] = f"Bearer {settings.polymarket_api_access_token}"
+        if extra:
+            headers.update(extra)
+        return headers
 
     def _raise_for_response(self, response: httpx.Response, path: str) -> None:
         if response.is_success:
@@ -46,6 +61,8 @@ class ApiClient:
                     message = msg
 
         code = "not_found" if response.status_code == 404 else "http_error"
+        if response.status_code == 401:
+            code = "unauthorized"
         raise ApiClientError(
             message,
             code=code,
@@ -55,21 +72,27 @@ class ApiClient:
         )
 
     async def _get_json(self, path: str, **kwargs: Any) -> Any:
-        response = await self._client.get(path, **kwargs)
+        headers = kwargs.pop("headers", None) or {}
+        merged = self._request_headers(headers)
+        response = await self._client.get(path, headers=merged, **kwargs)
         self._raise_for_response(response, path)
         if not response.content:
             return None
         return response.json()
 
     async def _post_json(self, path: str, **kwargs: Any) -> Any:
-        response = await self._client.post(path, **kwargs)
+        headers = kwargs.pop("headers", None) or {}
+        merged = self._request_headers(headers)
+        response = await self._client.post(path, headers=merged, **kwargs)
         self._raise_for_response(response, path)
         if not response.content:
             return None
         return response.json()
 
     async def _delete_json(self, path: str, **kwargs: Any) -> Any:
-        response = await self._client.delete(path, **kwargs)
+        headers = kwargs.pop("headers", None) or {}
+        merged = self._request_headers(headers)
+        response = await self._client.delete(path, headers=merged, **kwargs)
         self._raise_for_response(response, path)
         if not response.content:
             return None
@@ -96,18 +119,29 @@ class ApiClient:
     async def clob_get(self, path: str, params: dict[str, Any] | None = None) -> Any:
         return await self._get_json(f"/clob{path}", params=params)
 
-    async def clob_post(self, path: str, json: Any = None) -> Any:
-        return await self._post_json(f"/clob{path}", json=json)
+    async def clob_post(
+        self, path: str, json: Any = None, params: dict[str, Any] | None = None
+    ) -> Any:
+        return await self._post_json(f"/clob{path}", json=json, params=params)
 
-    async def clob_delete(self, path: str, json_body: Any = None) -> Any:
+    async def clob_delete(
+        self, path: str, json_body: Any = None, params: dict[str, Any] | None = None
+    ) -> Any:
         if json_body is None:
-            return await self._delete_json(f"/clob{path}")
+            return await self._delete_json(f"/clob{path}", params=params)
         payload = json.dumps(json_body, separators=(",", ":"), ensure_ascii=False)
         return await self._delete_json(
             f"/clob{path}",
             content=payload.encode("utf-8"),
             headers={"Content-Type": "application/json"},
+            params=params,
         )
+
+    async def paper_get(self, path: str, params: dict[str, Any] | None = None) -> Any:
+        return await self._get_json(f"/paper{path}", params=params)
+
+    async def paper_post(self, path: str, json: Any = None) -> Any:
+        return await self._post_json(f"/paper{path}", json=json)
 
     async def gamma_search(
         self,

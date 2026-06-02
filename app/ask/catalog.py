@@ -17,6 +17,8 @@ SENSITIVE_TOOLS = frozenset(
         "post_bridge_deposit",
         "post_bridge_withdraw",
         "post_bridge_quote",
+        "reset_paper_account",
+        "reset_paper_balance",
     }
 )
 

@@ -1,5 +1,6 @@
 from fastmcp import FastMCP
 
+from app.tools.paper import register as register_paper
 from app.tools.ask import register as register_ask
 from app.tools.bridge import register as register_bridge
 from app.tools.clob import register as register_clob
@@ -12,6 +13,7 @@ def register_tools(mcp: FastMCP) -> None:
     register_health(mcp)
     register_gamma(mcp)
     register_clob(mcp)
+    register_paper(mcp)
     register_data(mcp)
     register_bridge(mcp)
     register_ask(mcp)

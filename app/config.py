@@ -5,7 +5,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    polymarket_api_url: str = "http://127.0.0.1:8000"
+    polymarket_api_url: str = "http://127.0.0.1:8005"
+    polymarket_api_access_token: str | None = None
 
     mcp_host: str = "127.0.0.1"
     mcp_port: int = 8001
