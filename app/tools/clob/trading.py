@@ -190,6 +190,23 @@ def register(mcp: FastMCP) -> None:
             return await client.clob_get("/data/trades", params or None)
 
     @tool
+    async def get_clob_positions(
+        mode: Literal["real", "paper"] = "real",
+        paper_account_id: str | None = None,
+        user: str | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> Any:
+        """Get positions via the unified CLOB route. Real mode needs user wallet; paper needs paper_account_id."""
+        params: dict[str, Any] = {"mode": mode, "limit": limit, "offset": offset}
+        if paper_account_id:
+            params["paper_account_id"] = paper_account_id
+        if user:
+            params["user"] = user
+        async with ApiClient() as client:
+            return await client.clob_get("/positions", params)
+
+    @tool
     async def get_clob_balance_allowance(
         asset_type: str = "COLLATERAL",
         token_id: str | None = None,
