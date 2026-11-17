@@ -17,7 +17,9 @@ class ApiClient:
     ) -> None:
         self._base_url = (base_url or settings.polymarket_api_url).rstrip("/")
         self._credentials = credentials
-        self._client = httpx.AsyncClient(base_url=self._base_url, timeout=60.0)
+        self._client = httpx.AsyncClient(
+            base_url=self._base_url, timeout=settings.http_timeout_seconds
+        )
 
     async def __aenter__(self) -> "ApiClient":
         return self

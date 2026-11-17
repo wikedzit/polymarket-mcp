@@ -1,4 +1,4 @@
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +21,30 @@ class Settings(BaseSettings):
     ask_session_ttl_seconds: int = 1800
     ask_execute_confidence: float = 0.75
     ask_clarify_confidence: float = 0.4
+    http_timeout_seconds: int = 60
+
+    @field_validator("ask_execute_confidence", "ask_clarify_confidence")
+    @classmethod
+    def validate_confidence_range(cls, value: float) -> float:
+        if not 0 <= value <= 1:
+            raise ValueError("confidence must be between 0 and 1 inclusive")
+        return value
+
+    @field_validator("ask_session_ttl_seconds", "http_timeout_seconds")
+    @classmethod
+    def validate_at_least_one_second(cls, value: int) -> int:
+        if value < 1:
+            raise ValueError("must be at least 1 second")
+        return value
+
+    @model_validator(mode="after")
+    def validate_execute_ge_clarify(self) -> "Settings":
+        if self.ask_execute_confidence < self.ask_clarify_confidence:
+            raise ValueError(
+                "ask_execute_confidence must be greater than or equal to "
+                "ask_clarify_confidence"
+            )
+        return self
 
     @field_validator("mcp_url", "polymarket_api_url", "openai_base_url", mode="before")
     @classmethod
