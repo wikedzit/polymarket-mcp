@@ -22,14 +22,17 @@ async def execute(fn: Callable[..., Awaitable[Any]], *args: Any, **kwargs: Any) 
         return ToolResponse.from_api_error(exc)
     except httpx.TimeoutException:
         return ToolResponse.failure("timeout", "Request to the trading API timed out")
-    except httpx.RequestError as exc:
+    except httpx.RequestError:
         return ToolResponse.failure(
             "connection_error",
             "Could not reach the trading API",
-            detail=str(exc),
+            detail="Verify network connectivity and try again.",
         )
-    except Exception as exc:
-        return ToolResponse.failure("internal_error", str(exc))
+    except Exception:
+        return ToolResponse.failure(
+            "internal_error",
+            "An unexpected error occurred while running the tool.",
+        )
 
 
 def make_tool(mcp: FastMCP) -> Callable[[F], F]:
