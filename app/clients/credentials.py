@@ -12,6 +12,22 @@ class TradingCredentialOverrides:
     poly_builder_code: str | None = None
     clob_signature_type: int | None = None
 
+    def __repr__(self) -> str:
+        def secret_status(value: str | None) -> str:
+            return "set" if value is not None else "unset"
+
+        return (
+            "TradingCredentialOverrides("
+            f"private_key={secret_status(self.private_key)!r}, "
+            f"deposit_wallet_address={self.deposit_wallet_address!r}, "
+            f"poly_api_key={self.poly_api_key!r}, "
+            f"poly_api_secret={secret_status(self.poly_api_secret)!r}, "
+            f"poly_passphrase={secret_status(self.poly_passphrase)!r}, "
+            f"poly_builder_code={self.poly_builder_code!r}, "
+            f"clob_signature_type={self.clob_signature_type!r}"
+            ")"
+        )
+
 
 def credentials_from_kwargs(**kwargs: Any) -> TradingCredentialOverrides | None:
     fields = {
