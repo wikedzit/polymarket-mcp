@@ -15,6 +15,10 @@ def register(mcp: FastMCP) -> None:
         starting_balance_usdc: float | None = None,
     ) -> Any:
         """Create a simulated paper trading account with virtual USDC."""
+        if not name.strip():
+            raise ValueError("name must not be blank")
+        if starting_balance_usdc is not None and starting_balance_usdc < 0:
+            raise ValueError("starting_balance_usdc must be non-negative")
         body: dict[str, Any] = {"name": name}
         if starting_balance_usdc is not None:
             body["starting_balance_usdc"] = starting_balance_usdc
@@ -64,6 +68,8 @@ def register(mcp: FastMCP) -> None:
         update_starting_balance: bool = False,
     ) -> Any:
         """Reset virtual USDC cash for a paper account. Keeps positions; cancels open orders."""
+        if balance_usdc is not None and balance_usdc < 0:
+            raise ValueError("balance_usdc must be non-negative")
         body: dict[str, Any] = {"update_starting_balance": update_starting_balance}
         if balance_usdc is not None:
             body["balance_usdc"] = balance_usdc
