@@ -29,6 +29,10 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Get all positions for a market via the trading API."""
+        if not 1 <= limit <= 100:
+            raise ValueError("limit must be between 1 and 100, inclusive")
+        if offset < 0:
+            raise ValueError("offset must be greater than or equal to 0")
         async with ApiClient() as client:
             return await client.data_get(
                 "/v1/market-positions",
