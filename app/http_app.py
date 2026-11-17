@@ -10,8 +10,6 @@ async def health_check(_request) -> JSONResponse:
         {
             "status": "healthy",
             "service": "polymarket-mcp",
-            "mcp_url": settings.mcp_url,
-            "mcp_endpoint": f"{settings.mcp_url}/mcp",
         }
     )
 
