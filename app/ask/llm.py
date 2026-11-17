@@ -91,7 +91,7 @@ class AskRouterLLM:
             "temperature": 0,
         }
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=settings.http_timeout_seconds) as client:
             response = await client.post(
                 f"{self._base_url}/chat/completions",
                 headers={
