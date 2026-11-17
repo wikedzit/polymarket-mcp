@@ -6,6 +6,16 @@ from app.tools.helpers import make_tool
 from app.clients.api import ApiClient
 
 
+def _validate_limit(limit: int) -> None:
+    if limit < 1 or limit > 100:
+        raise ValueError("limit must be between 1 and 100 inclusive")
+
+
+def _validate_offset(offset: int) -> None:
+    if offset < 0:
+        raise ValueError("offset must be non-negative")
+
+
 def register(mcp: FastMCP) -> None:
     tool = make_tool(mcp)
 
@@ -22,6 +32,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Get open positions for a wallet via the trading API Data service."""
+        _validate_limit(limit)
+        _validate_offset(offset)
         async with ApiClient() as client:
             return await client.data_get(
                 "/positions",
@@ -35,6 +47,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Get closed positions for a wallet via the trading API."""
+        _validate_limit(limit)
+        _validate_offset(offset)
         async with ApiClient() as client:
             return await client.data_get(
                 "/closed-positions",
@@ -55,6 +69,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Get trade history via the trading API Data service."""
+        _validate_limit(limit)
+        _validate_offset(offset)
         params: dict[str, Any] = {"limit": limit, "offset": offset}
         if market:
             params["market"] = market
@@ -70,6 +86,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """Get on-chain activity for a wallet via the trading API."""
+        _validate_limit(limit)
+        _validate_offset(offset)
         async with ApiClient() as client:
             return await client.data_get(
                 "/activity",
@@ -82,6 +100,7 @@ def register(mcp: FastMCP) -> None:
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """Get top holders for a market condition ID via the trading API."""
+        _validate_limit(limit)
         async with ApiClient() as client:
             return await client.data_get("/holders", {"market": market, "limit": limit})
 
