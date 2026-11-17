@@ -6,6 +6,16 @@ from app.tools.helpers import make_tool
 from app.clients.api import ApiClient
 
 
+def _validate_list_limit(limit: int) -> None:
+    if limit < 1 or limit > 50:
+        raise ValueError("limit must be between 1 and 50 inclusive")
+
+
+def _validate_list_offset(offset: int) -> None:
+    if offset < 0:
+        raise ValueError("offset must be 0 or greater")
+
+
 def _market_params(
     *,
     limit: int = 10,
@@ -48,6 +58,8 @@ def register(mcp: FastMCP) -> None:
         summarize: bool = True,
     ) -> list[dict[str, Any]]:
         """List Polymarket markets via the trading API Gamma service."""
+        _validate_list_limit(limit)
+        _validate_list_offset(offset)
         async with ApiClient() as client:
             return await client.gamma_get(
                 "/markets",
@@ -85,6 +97,7 @@ def register(mcp: FastMCP) -> None:
         summarize: bool = True,
     ) -> list[dict[str, Any]]:
         """List Polymarket markets using Gamma keyset pagination via the trading API."""
+        _validate_list_limit(limit)
         params: dict[str, Any] = {
             "limit": limit,
             "active": active,
@@ -104,6 +117,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """List Polymarket sampling markets via the trading API."""
+        _validate_list_limit(limit)
+        _validate_list_offset(offset)
         async with ApiClient() as client:
             return await client.gamma_get(
                 "/markets/sampling",
@@ -116,6 +131,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """List simplified Polymarket sampling markets via the trading API."""
+        _validate_list_limit(limit)
+        _validate_list_offset(offset)
         async with ApiClient() as client:
             return await client.gamma_get(
                 "/markets/sampling-simplified",
@@ -128,6 +145,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """List simplified Polymarket markets via the trading API."""
+        _validate_list_limit(limit)
+        _validate_list_offset(offset)
         async with ApiClient() as client:
             return await client.gamma_get(
                 "/markets/simplified",
