@@ -6,6 +6,16 @@ from app.clients.api import ApiClient
 from app.tools.helpers import make_tool
 
 
+def _validate_limit(limit: int) -> None:
+    if limit < 1 or limit > 50:
+        raise ValueError("limit must be between 1 and 50 inclusive")
+
+
+def _validate_offset(offset: int) -> None:
+    if offset < 0:
+        raise ValueError("offset must be at least 0")
+
+
 def register(mcp: FastMCP) -> None:
     tool = make_tool(mcp)
 
@@ -40,6 +50,8 @@ def register(mcp: FastMCP) -> None:
             params["order"] = order
         if ascending is not None:
             params["ascending"] = ascending
+        _validate_limit(limit)
+        _validate_offset(offset)
         async with ApiClient() as client:
             return await client.gamma_get("/events", params)
 
@@ -66,6 +78,7 @@ def register(mcp: FastMCP) -> None:
             params["tag_slug"] = tag_slug
         if series_id is not None:
             params["series_id"] = str(series_id)
+        _validate_limit(limit)
         async with ApiClient() as client:
             return await client.gamma_get("/events/keyset", params)
 
@@ -75,6 +88,8 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> list[dict[str, Any]]:
         """List Polymarket event tags via the trading API."""
+        _validate_limit(limit)
+        _validate_offset(offset)
         async with ApiClient() as client:
             return await client.gamma_get(
                 "/events/tags",
