@@ -6,6 +6,13 @@ from app.tools.helpers import make_tool
 from app.clients.api import ApiClient
 
 
+def _validate_limit_offset(limit: int, offset: int) -> None:
+    if not 1 <= limit <= 50:
+        raise ValueError("limit must be between 1 and 50 inclusive")
+    if offset < 0:
+        raise ValueError("offset must be greater than or equal to 0")
+
+
 def register(mcp: FastMCP) -> None:
     tool = make_tool(mcp)
 
@@ -27,6 +34,7 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> dict[str, Any]:
         """Get trader leaderboard via the trading API Data service."""
+        _validate_limit_offset(limit, offset)
         async with ApiClient() as client:
             return await client.data_get(
                 "/v1/leaderboard",
@@ -39,6 +47,7 @@ def register(mcp: FastMCP) -> None:
         offset: int = 0,
     ) -> dict[str, Any]:
         """Get builder leaderboard via the trading API."""
+        _validate_limit_offset(limit, offset)
         async with ApiClient() as client:
             return await client.data_get(
                 "/v1/builders/leaderboard",
