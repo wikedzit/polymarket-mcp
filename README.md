@@ -41,14 +41,11 @@ AI Client  →  MCP (this repo)  →  Polymarket API  →  Polymarket / SQLite
 
 ## Quick start (local)
 
-### 1. Start the API first
+Run these commands from the **repository root**. The upstream Polymarket API must already be running and reachable at `POLYMARKET_API_URL` (default `http://127.0.0.1:8005`).
 
-See [../api/README.md](../api/README.md). The API must be running and reachable.
-
-### 2. Configure MCP
+### Install and configure
 
 ```bash
-cd mcp
 python3.14 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -69,7 +66,7 @@ Optional for `ask` tool:
 OPENAI_API_KEY=sk-...
 ```
 
-### 3. Run MCP
+### Run MCP
 
 **stdio (Cursor / Claude Desktop):**
 
@@ -99,21 +96,29 @@ curl http://127.0.0.1:8001/health
 
 ## Docker
 
+From the repository root:
+
 ```bash
-cd mcp
 cp .env.example .env
-# Set POLYMARKET_API_URL, POLYMARKET_API_ACCESS_TOKEN, OPENAI_API_KEY
+# Required: POLYMARKET_API_ACCESS_TOKEN
+# Optional: OPENAI_API_KEY, MCP_PORT, MCP_URL
 
 docker compose up -d --build
 ```
 
-When the API runs on the host and MCP in Docker:
+The service listens on port **8001** by default (`MCP_PORT`). Health check:
+
+```bash
+curl http://127.0.0.1:8001/health
+```
+
+`docker-compose.yml` runs the HTTP MCP server with `MCP_HOST=0.0.0.0` and maps `${MCP_PORT:-8001}`. Inside the container, `POLYMARKET_API_URL` is set from **`DOCKER_POLYMARKET_API_URL`** (default `http://host.docker.internal:8005` via `extra_hosts: host.docker.internal`). Add to `.env` when the API runs on the host machine:
 
 ```bash
 DOCKER_POLYMARKET_API_URL=http://host.docker.internal:8005
 ```
 
-When both run in Docker, use a shared network or `host.docker.internal`.
+When both MCP and the API run in Docker, set `DOCKER_POLYMARKET_API_URL` to the API service hostname on a shared Docker network instead of `127.0.0.1`.
 
 ---
 
@@ -239,7 +244,7 @@ Requires `OPENAI_API_KEY`.
 {
   "mcpServers": {
     "polymarket": {
-      "command": "/path/to/mcp/.venv/bin/python",
+      "command": "/path/to/polymarket-mcp/.venv/bin/python",
       "args": ["-m", "app.main"],
       "env": {
         "POLYMARKET_API_URL": "http://127.0.0.1:8005",
